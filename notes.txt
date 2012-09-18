@@ -1,0 +1,103 @@
+# top level
+read scalar
+if "title" read next event and set title
+if "buttons" call buttons_parser
+
+# buttons parser
+get event, it should be the sequence start
+loop over elements
+for each element create a new row
+if "title" then read next event and set row's title, make a row
+ in gtk and set the title
+if "icons" then call icons_parser
+
+# icons parser
+get event, it should be a sequcne start
+get event, it should be a mapping start
+loop over mappings
+   get event, expect a key
+   get event, expect a value
+   checking that the keys match "title" "icon" or "command"
+   if we get an mapping end event, create a button and insert it via gtk
+if we get an end sequence event, close out the row, and continue
+
+gboolean config_read_top();
+gboolean config_read_buttons();
+gboolean config_read_icons();
+gboolean config_read_icon();
+
+YAML_STREAM_START_EVENT
+YAML_DOCUMENT_START_EVENT
+SCALAR_EVENT anchor (null), tag (null), value table plain_implicit
+#table
+    YAML_SEQUENCE_START_EVENT, tag (null)
+
+        YAML_MAPPING_START_EVENT
+            SCALAR_EVENT anchor (null), tag (null), value title plain_implicit
+            SCALAR_EVENT anchor (null), tag (null), value Title of row plain_implicit
+        YAML_MAPPING_END_EVENT
+
+        YAML_MAPPING_START_EVENT
+            SCALAR_EVENT anchor (null), tag (null), value icons plain_implicit
+            #icons
+                YAML_SEQUENCE_START_EVENT, tag (null)
+                    YAML_MAPPING_START_EVENT
+                        SCALAR_EVENT anchor (null), tag (null), value title plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value Something plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value path/to/icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value command plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value shell command line plain_implicit
+                    YAML_MAPPING_END_EVENT
+                    YAML_MAPPING_START_EVENT
+                        SCALAR_EVENT anchor (null), tag (null), value title plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value Something plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value path/to/icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value command plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value shell command line plain_implicit
+                    YAML_MAPPING_END_EVENT
+                YAML_SEQUENCE_END_EVENT
+        YAML_MAPPING_END_EVENT
+
+        YAML_MAPPING_START_EVENT
+            SCALAR_EVENT anchor (null), tag (null), value title plain_implicit
+            #title
+            SCALAR_EVENT anchor (null), tag (null), value foo plain_implicit
+        YAML_MAPPING_END_EVENT
+
+        YAML_MAPPING_START_EVENT
+            SCALAR_EVENT anchor (null), tag (null), value icons plain_implicit
+            #icons
+                YAML_SEQUENCE_START_EVENT, tag (null)
+                    YAML_MAPPING_START_EVENT
+                        SCALAR_EVENT anchor (null), tag (null), value title plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value Something plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value path/to/icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value command plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value shell command line plain_implicit
+                    YAML_MAPPING_END_EVENT
+                    YAML_MAPPING_START_EVENT
+                        SCALAR_EVENT anchor (null), tag (null), value title plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value Something''s Happening plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value path/to/icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value command plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value shell command line plain_implicit
+                    YAML_MAPPING_END_EVENT
+                    YAML_MAPPING_START_EVENT
+                        SCALAR_EVENT anchor (null), tag (null), value title plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value Something''s Happening plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value path/to/icon plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value command plain_implicit
+                        SCALAR_EVENT anchor (null), tag (null), value shell command line plain_implicit
+                    YAML_MAPPING_END_EVENT
+                YAML_SEQUENCE_END_EVENT
+        YAML_MAPPING_END_EVENT
+
+    YAML_SEQUENCE_END_EVENT
+YAML_MAPPING_END_EVENT
+YAML_DOCUMENT_END_EVENT
+YAML_STREAM_END_EVENT

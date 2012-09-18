@@ -1,0 +1,22 @@
+# conf.yaml
+table:
+  - title: Title of row
+  - icons:
+        - title    : Something
+          icon     : path/to/icon
+          command  : shell command line
+        - title    : Something
+          icon     : path/to/icon
+          command  : shell command line
+  - title: foo
+  - icons:
+        - title    : Something
+          icon     : path/to/icon
+          command  : shell command line
+        - title    : "Something''s Happening"
+          icon     : path/to/icon
+          command  : shell command line
+        - title    : "Something''s Happening"
+          icon     : path/to/icon
+          command  : shell command line
+title: "easycz"
