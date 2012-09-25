@@ -9,6 +9,7 @@ gboolean config_read_icons();
 gboolean config_read_icon();
 void parser_error_handler( yaml_parser_t *parser );
 gboolean config_next_scalar_value( GString *value );
+gboolean run_command( GtkButton *button, GHashTable *command );
 
 /* helper to print error messages */
 char * stringify_event_type( yaml_event_t *event )
@@ -223,24 +224,22 @@ gboolean config_read_sequence()
 int config_parse( char *filename )
 {
     FILE *fh = fopen( filename, "r");
-    yaml_parser_t parserobj;
     yaml_event_t eventobj;
     yaml_parser_t* parser;
     yaml_event_t* event = &eventobj;
     int done = 0;   
 
-    parser = config->parser = &parserobj;
-    /*  parser = &parserobj;
-    event = &eventobj;
-    */
     memset( parser, 0, sizeof(parser) );
-    memset( event, 0, sizeof(event) );
+    memset( config, 0, sizeof(config) );
+
+    config->parser = malloc(sizeof(yaml_parser_t));
+    parser = config->parser;
 
     /* Initialize parser */
     if(!yaml_parser_initialize(parser))
-    fputs("Failed to initialize parser!\n", stderr);
+        fputs("Failed to initialize parser!\n", stderr);
     if(fh == NULL)
-    fputs("Failed to open file!\n", stderr);
+        fputs("Failed to open file!\n", stderr);
 
     /* Set input file */
     yaml_parser_set_input_file(parser, fh);
@@ -299,16 +298,9 @@ gboolean config_read_document()
 
     value = g_string_new("");
 
-    if ( config->windowcounter >= MAX_WINDOWS)
-    {
-        fprintf( stderr, "Too many windows.  Change MAX_WINDOWS in globals.h.");
-        return FALSE;
-    }
-
     /* every document populates a single window */
     if (window = gtk_window_new( GTK_WINDOW_TOPLEVEL ))
     {
-        config->windows[config->windowcounter++] = window;
     }
     else
     {
@@ -564,17 +556,15 @@ gboolean config_read_icon( GtkWidget *hbox )
 {
     yaml_event_t eventobj;
     yaml_event_t *event = &eventobj;
-    GString *value = NULL;
     GString *title = NULL;
     GString *icon = NULL;
-    GString *command = NULL;
-    GtkWidget *button;
+    GString *path = NULL;
+    GtkWidget *image = NULL;
+    GtkWidget *button = NULL;
+    GHashTable *command = NULL;
     
-    value = g_string_new("");
-    title = g_string_new("");
-    icon = g_string_new("default icon value");
-    command = g_string_new("default command value");
-
+    command = g_hash_table_new( g_direct_hash, g_direct_equal );
+  
     printf("Reading an icon\n");
     while( config_parse_next_event( event ) )
     {
@@ -583,10 +573,16 @@ gboolean config_read_icon( GtkWidget *hbox )
             // add the widget to the container
             printf( "adding icon: %s %s %s\n", title->str,
                                                icon->str,
-                                               command->str );
+                                               path->str );
             button = gtk_button_new_with_label( title->str );
+            image = gtk_image_new_from_file( icon->str );
+            gtk_button_set_image( GTK_BUTTON(button), image );
+            gtk_button_set_image_position( GTK_BUTTON(button),
+                                           GTK_POS_TOP );
+            g_signal_connect_data( button, "clicked",
+                      G_CALLBACK(run_command), command, NULL, 0 );
             gtk_box_pack_start( GTK_BOX(hbox), button, FALSE, FALSE, 5 );
-            gtk_widget_show( button );
+            gtk_widget_show( GTK_WIDGET(button) );
             /*
               gtk_image_new_from_file( "hp530a.png" );
               gtk_button_set_image( GTK_BUTTON(button[i]), image[i] );
@@ -605,15 +601,19 @@ gboolean config_read_icon( GtkWidget *hbox )
             printf( "config_read_icon scalar: %s\n", event->data.scalar.value );
             if ( 0 == strcmp( "title", event->data.scalar.value ) )
             {
+                title = g_string_new("");
                 config_next_scalar_value( title );
             }
             else if ( 0 == strcmp( "icon", event->data.scalar.value ) )
             {
+                icon = g_string_new("default icon value");
                 config_next_scalar_value( icon );
             }
             else if ( 0 == strcmp( "command", event->data.scalar.value ) )
             {
-                config_next_scalar_value( command );
+                path = g_string_new("");
+                config_next_scalar_value( path );
+                g_hash_table_insert( command, "path", path );
             }
         }
         else /* error */
@@ -626,3 +626,10 @@ gboolean config_read_icon( GtkWidget *hbox )
     return FALSE;
 }
 
+gboolean run_command( GtkButton *button, GHashTable *command )
+{
+    GString *path;
+    path = g_hash_table_lookup( command, "path" );
+    if (path != NULL)
+        printf("%s\n", path->str );
+}

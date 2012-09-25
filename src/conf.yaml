@@ -3,20 +3,20 @@ table:
   - title: Title of row
   - icons:
         - title    : Something
-          icon     : path/to/icon
-          command  : shell command line
+          icon     : images/aceronea.png
+          command  : path/to/command
         - title    : Something
-          icon     : path/to/icon
+          icon     : images/aceroneb.png
           command  : shell command line
   - title: foo
   - icons:
         - title    : Something
-          icon     : path/to/icon
+          icon     : images/hp530a.png
           command  : shell command line
-        - title    : "Something''s Happening"
-          icon     : path/to/icon
+        - title    : "Something's Happening"
+          icon     : images/hp530b.png
           command  : shell command line
-        - title    : "Something''s Happening"
-          icon     : path/to/icon
+        - title    : "Something's Happening"
+          icon     : images/smile.png
           command  : shell command line
 title: "easycz"

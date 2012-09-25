@@ -12,9 +12,11 @@
 
 typedef struct config_s {
     yaml_parser_t *parser;
-    GtkWidget *windows[MAX_WINDOWS]; // store all windows here
-    gint windowcounter;
 } config_t;
+
+typedef struct command_s {
+    GString *path;
+} command_t;
 
 // a singleton that holds the config object
 static config_t configobj;
