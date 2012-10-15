@@ -13,8 +13,8 @@ Not even "alpha" software at this time.
 compiling
 =========
 
-cd easycz/src
-make all
+	cd easycz/src
+	make all
 
 
 changelog
