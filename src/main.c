@@ -7,24 +7,20 @@
 
 #include "gtk/gtk.h"
 #include "config.h"
+#include "main.h"
 
-
-static gboolean delete_event( GtkWidget *widget,
-                              GdkEvent *event,
-                              gpointer data )
+gboolean delete_event( GtkWidget *widget,
+                       GdkEvent *event,
+                       gpointer data )
 {
     g_print("delete event\n");
-    return TRUE;
+    return FALSE;
 }
 
-static void destroy( GtkWidget *widget,
+void destroy( GtkWidget *widget, 
                      gpointer data )
 {
     gtk_main_quit();
-}
-static void hello( GtkWidget *widget, gpointer data )
-{
-    g_print("Hello");
 }
 
 int main( int argc, char *argv[] )

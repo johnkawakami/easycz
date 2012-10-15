@@ -1,22 +1,32 @@
 # conf.yaml
 table:
-  - title: Title of row
+  - title: Backup
   - icons:
-        - title    : Something
-          icon     : images/aceronea.png
-          command  : path/to/command
-        - title    : Something
-          icon     : images/aceroneb.png
-          command  : shell command line
-  - title: foo
+        - title    : Backup Slaptech
+          icon     : images/slaptech.png
+          command  : gnome-terminal -e /mnt/backup/backup/backup.sh
+        - title    : Backup home
+          icon     : images/backup.png
+          command  : /home/johnk/backup.sh
+  - title: Tools
   - icons:
-        - title    : Something
-          icon     : images/hp530a.png
-          command  : shell command line
-        - title    : "Something's Happening"
-          icon     : images/hp530b.png
-          command  : shell command line
-        - title    : "Something's Happening"
-          icon     : images/smile.png
-          command  : shell command line
-title: "easycz"
+        - title    : Firefox
+          icon     : /usr/share/app-install/icons/firefox.png
+          command  : firefox
+        - title    : "Thunderbird"
+          icon     : /usr/share/app-install/icons/thunderbird.png
+          command  : thunderbird
+        - title    : "Chrome"
+          icon     : /usr/share/icons/hicolor/64x64/apps/google-chrome.png
+          command  : google-chrome
+  - title: Websites
+  - icons:
+        - title    : Hacker News
+          command  : firefox http://news.ycombinator.com
+        - title    : L.A. Times
+          command  : firefox http://latimes.com
+        - title    : L.A. Indymedia
+          command  : firefox http://la.indymedia.org
+        - title    : S.O.C.
+          command  : firefox http://saveourcommunity.us
+title: "Welcome to Linux"

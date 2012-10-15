@@ -1,4 +1,5 @@
 #include "config.h"
+#include "main.h"
 
 /* private methods */
 gboolean config_read_document();
@@ -301,6 +302,10 @@ gboolean config_read_document()
     /* every document populates a single window */
     if (window = gtk_window_new( GTK_WINDOW_TOPLEVEL ))
     {
+        g_signal_connect( window, "delete-event",
+                          G_CALLBACK(delete_event), NULL );
+        g_signal_connect( window, "destroy",
+                          G_CALLBACK(destroy), NULL );
     }
     else
     {
@@ -571,28 +576,20 @@ gboolean config_read_icon( GtkWidget *hbox )
         if ( event->type == YAML_MAPPING_END_EVENT )
         {
             // add the widget to the container
-            printf( "adding icon: %s %s %s\n", title->str,
-                                               icon->str,
-                                               path->str );
+            printf( "adding icon: %s %s\n", title->str, path->str );
             button = gtk_button_new_with_label( title->str );
-            image = gtk_image_new_from_file( icon->str );
-            gtk_button_set_image( GTK_BUTTON(button), image );
-            gtk_button_set_image_position( GTK_BUTTON(button),
-                                           GTK_POS_TOP );
+            if ( NULL != icon )
+            {
+                printf("  with image: %s\n", icon->str );
+                image = gtk_image_new_from_file( icon->str );
+                gtk_button_set_image( GTK_BUTTON(button), image );
+                gtk_button_set_image_position( GTK_BUTTON(button),
+                                               GTK_POS_TOP );
+            }
             g_signal_connect_data( button, "clicked",
                       G_CALLBACK(run_command), command, NULL, 0 );
             gtk_box_pack_start( GTK_BOX(hbox), button, FALSE, FALSE, 5 );
             gtk_widget_show( GTK_WIDGET(button) );
-            /*
-              gtk_image_new_from_file( "hp530a.png" );
-              gtk_button_set_image( GTK_BUTTON(button[i]), image[i] );
-              gtk_button_set_image_position( GTK_BUTTON(button[i]),
-                                       GTK_POS_TOP );
-              gtk_box_pack_start( GTK_BOX(box), button[i], FALSE, FALSE, 5 );
-              gtk_widget_show( button[i] );
-              gtk_widget_show( GTK_WIDGET(box) );
-              gtk_container_add( GTK_CONTAINER (window), GTK_WIDGET(box) );
-            */
         
             return TRUE;
         }
@@ -631,5 +628,8 @@ gboolean run_command( GtkButton *button, GHashTable *command )
     GString *path;
     path = g_hash_table_lookup( command, "path" );
     if (path != NULL)
+    {
         printf("%s\n", path->str );
+        system( path->str );
+    }
 }
