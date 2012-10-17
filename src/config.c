@@ -1,7 +1,6 @@
 #include "config.h"
 #include "main.h"
 
-/* private methods */
 gboolean config_read_document();
 gboolean config_read_document_mapping();
 gboolean config_read_table();
@@ -63,10 +62,9 @@ char * stringify_event_type( yaml_event_t *event )
     }
 }
 
+/* Display a parser error message. */
 void parser_error_handler( yaml_parser_t *parser )
 {
-    /* Display a parser error message. */
-
     switch (parser->error)
     {
         case YAML_MEMORY_ERROR:
@@ -116,7 +114,7 @@ void parser_error_handler( yaml_parser_t *parser )
 
         default:
             /* Couldn't happen. */
-            fprintf(stderr, "Internal error\n");
+            fprintf(stderr, "Internal error: %d, %s\n", parser->error, parser->problem );
             break;
     }
 }
@@ -230,7 +228,6 @@ int config_parse( char *filename )
     yaml_event_t* event = &eventobj;
     int done = 0;   
 
-    memset( parser, 0, sizeof(parser) );
     memset( config, 0, sizeof(config) );
 
     config->parser = malloc(sizeof(yaml_parser_t));
@@ -248,10 +245,18 @@ int config_parse( char *filename )
     /* BEGIN new code */
     if (!yaml_stream_start_event_initialize( event, YAML_UTF8_ENCODING ))
     {
+        printf("could not initalize\n");
         parser_error_handler( parser );
         yaml_event_delete(event);
         yaml_parser_delete(parser);
         return 0;
+    }
+
+    yaml_parser_parse( parser, event );
+    // expect YAML_STREAM_START_EVENT
+    if ( YAML_STREAM_START_EVENT != event->type )
+    {
+        printf("failed to find YAML_STREAM_START_EVENT\n");
     }
 
     /* A stream can contain multiple documents, separated by lines with
@@ -279,6 +284,9 @@ int config_parse( char *filename )
         }
         else /* error, unexpected event */
         {
+            printf(" rogue event %s \n", stringify_event_type( event ) );
+            parser_error_handler( parser );
+            return FALSE;
         }
 	}
     /* we should never get here */

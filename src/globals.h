@@ -4,3 +4,5 @@
 
 
 
+static gboolean opt_fullscreen = FALSE;
+static gboolean opt_debug = FALSE;

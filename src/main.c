@@ -1,10 +1,4 @@
-/*
-#include <config.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <glib/glib.h>
-*/
-
+#include <unistd.h>
 #include "gtk/gtk.h"
 #include "config.h"
 #include "main.h"
@@ -14,7 +8,7 @@ gboolean delete_event( GtkWidget *widget,
                        gpointer data )
 {
     g_print("delete event\n");
-    return FALSE;
+    return FALSE;  // FALSE causes destroy even to fire
 }
 
 void destroy( GtkWidget *widget, 
@@ -30,9 +24,33 @@ int main( int argc, char *argv[] )
     GtkWidget *box;
     GtkWidget *image[6];
     int i;
-
+    int opt;
 
     gtk_init( &argc, &argv );
+
+    while( ( opt = getopt( argc, argv, "df" ) ) != -1 )
+    {
+        switch( opt )
+        {
+            case 'd':
+                opt_debug = TRUE;
+                break;
+            case 'f':
+                opt_fullscreen = TRUE;
+                break;
+            default:
+                break;
+        }
+    }
+    if (opt_debug)
+    {
+        printf("debug\n");
+        if (opt_fullscreen)
+        {
+            printf("fullscreen\n");
+        }
+    }
+    
     /* parse the yaml file to build the gui */
     if (!config_parse("conf.yaml"))
     {
