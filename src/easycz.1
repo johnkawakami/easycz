@@ -1,0 +1,34 @@
+.\" This is a comment
+.\" Contact Owen@thelinuxblog.com
+.TH man 1 "10 October 2012" ".1" "eazycz"
+.SH NAME
+easycz \- script launcher
+.SH SYNOPSIS
+Easy CZ (clonezilla) script launcher.
+.SH DESCRIPTION
+This is a simple graphical user interface program
+that admins can use to create push-button
+interfaces, also known as "switchboards",
+for novice users. The configuration is
+done with a YAML file. There is no way for the end
+user to alter the interface through this program.
+This is considered a feature, not a bug.
+.PP
+It was originally intended to launch Clonezilla commands.
+.SH OPTIONS
+.TP
+\-c <configfile>
+specify a config file
+.TP
+\-d
+debug
+.TP
+\-f 
+forces full-screen mode
+.SH SEE ALSO
+clonezilla(1)
+.SH BUGS
+Malformed YAML files don't work at all, but error messages aren't
+helpful.
+.SH AUTHOR
+John K <johnk@riceball.com>

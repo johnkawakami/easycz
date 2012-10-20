@@ -1,5 +1,7 @@
 #include "config.h"
 #include "main.h"
+#include "globals.h"
+#define BUTTON_SPACING 10
 
 gboolean config_read_document();
 gboolean config_read_document_mapping();
@@ -151,7 +153,8 @@ gboolean config_next_scalar_value( GString *value )
     }
     else
     {
-        printf("config_next_scalar_value read: %s\n", event->data.scalar.value );
+        if (opt_debug)
+            printf("config_next_scalar_value read: %s\n", event->data.scalar.value );
         g_string_assign( value, event->data.scalar.value );
         return TRUE;
     }
@@ -245,7 +248,7 @@ int config_parse( char *filename )
     /* BEGIN new code */
     if (!yaml_stream_start_event_initialize( event, YAML_UTF8_ENCODING ))
     {
-        printf("could not initalize\n");
+        if (opt_debug) printf("could not initalize\n");
         parser_error_handler( parser );
         yaml_event_delete(event);
         yaml_parser_delete(parser);
@@ -256,7 +259,8 @@ int config_parse( char *filename )
     // expect YAML_STREAM_START_EVENT
     if ( YAML_STREAM_START_EVENT != event->type )
     {
-        printf("failed to find YAML_STREAM_START_EVENT\n");
+        if (opt_debug) printf("failed to find YAML_STREAM_START_EVENT\n");
+        exit(1);
     }
 
     /* A stream can contain multiple documents, separated by lines with
@@ -269,7 +273,7 @@ int config_parse( char *filename )
             yaml_event_delete(event);
             yaml_parser_delete(parser);
             fclose(fh);
-            printf("Finished reading stream.\n");
+            if (opt_debug) printf("Finished reading stream.\n");
             return TRUE;
         }
 		else if (event->type == YAML_DOCUMENT_START_EVENT) 
@@ -284,7 +288,7 @@ int config_parse( char *filename )
         }
         else /* error, unexpected event */
         {
-            printf(" rogue event %s \n", stringify_event_type( event ) );
+            if (opt_debug) printf(" rogue event %s \n", stringify_event_type( event ) );
             parser_error_handler( parser );
             return FALSE;
         }
@@ -303,7 +307,7 @@ gboolean config_read_document()
     yaml_event_t eventobj;
     yaml_event_t *event = &eventobj;
 
-    printf("read document\n");
+    if (opt_debug) printf("read document\n");
 
     value = g_string_new("");
 
@@ -325,8 +329,17 @@ gboolean config_read_document()
         if (event->type == YAML_DOCUMENT_END_EVENT)
         {
             // show window when document is complete
-            printf( "ended the document.");
+            if (opt_debug) printf( "ended the document.");
             gtk_container_set_border_width( GTK_CONTAINER (window), 10 );
+            if (opt_fullscreen)
+            {
+                gtk_window_fullscreen( GTK_WINDOW(window) );
+            }
+            if ( !gtk_window_set_default_icon_from_file( "images/icon.png", NULL ) )
+            {
+                // don't do anything - no icon set 
+            }
+            
             gtk_widget_show( window ); 
             return TRUE;
         }
@@ -366,19 +379,19 @@ gboolean config_read_document_mapping( GtkWidget *window )
     {
         if (event->type == YAML_MAPPING_END_EVENT )
         {
-            printf("yaml mapping end");
+            if (opt_debug) printf("yaml mapping end");
             return TRUE;
         }
         else if (event->type == YAML_SCALAR_EVENT )
         {
             /* expect either "title" or "table" */
             /* if "title" set the window's title */
-            printf("scalar value %s\n", event->data.scalar.value);
+            if (opt_debug) printf("scalar value %s\n", event->data.scalar.value);
             if ( 0==strcmp( "title", event->data.scalar.value ) )
             {
                 if (config_next_scalar_value( value ))
                 {
-                    printf("setting title to %s\n", value->str);
+                    if (opt_debug) printf("setting title to %s\n", value->str);
                     gtk_window_set_title( GTK_WINDOW(window), value->str );
                 }
                 else
@@ -389,11 +402,11 @@ gboolean config_read_document_mapping( GtkWidget *window )
             }
             else if ( 0==strcmp( "table", event->data.scalar.value ) )
             {
-                printf("starting a table\n");
+                if (opt_debug) printf("starting a table\n");
                 // fixme add code to restrict number of tables
                 if (config_read_table( window ))
                 {
-                    printf("read the table ok.\n");
+                    if (opt_debug) printf("read the table ok.\n");
                 }
                 else
                 {
@@ -404,7 +417,7 @@ gboolean config_read_document_mapping( GtkWidget *window )
         }
         else if (event->type == YAML_NO_EVENT )
         {
-            fprintf( stdout, "No Event... usually means a syntax error.\n");
+            if (opt_debug) fprintf( stdout, "No Event... usually means a syntax error.\n");
         }
         else /* error */
         {
@@ -470,6 +483,7 @@ gboolean config_read_table_rows( GtkWidget *vbox )
     GtkWidget *label;
     GtkWidget *hbox;
     GString *value;
+    GString *gs;
     yaml_event_t eventobj;
     yaml_event_t *event = &eventobj;
 
@@ -485,13 +499,16 @@ gboolean config_read_table_rows( GtkWidget *vbox )
         }
         else if ( event->type == YAML_SCALAR_EVENT )
         {
-            printf("config_read_table_rows scalar: %s\n",
+            if (opt_debug) printf("config_read_table_rows scalar: %s\n",
                    event->data.scalar.value);
             if ( 0==strcmp( "title", event->data.scalar.value ) )
             {
                 if (config_next_scalar_value( value ))
                 {
-                    label = gtk_label_new( value->str );
+                    gs = g_string_prepend( value, "<b>" );
+                    gs = g_string_append( gs, "</b>" );
+                    label = gtk_label_new( NULL );
+                    gtk_label_set_markup( GTK_LABEL(label), gs->str );
                     gtk_misc_set_alignment( GTK_MISC(label),
                                             (gfloat) 0,
                                             (gfloat) 0 );
@@ -544,7 +561,7 @@ gboolean config_read_icons( GtkWidget *hbox )
     yaml_event_t eventobj;
     yaml_event_t *event = &eventobj;
 
-    printf("Reading icons\n");
+    if (opt_debug) printf("Reading icons\n");
     while( config_parse_next_event( event ) )
     {
         if ( event->type == YAML_SEQUENCE_END_EVENT )
@@ -578,17 +595,17 @@ gboolean config_read_icon( GtkWidget *hbox )
     
     command = g_hash_table_new( g_direct_hash, g_direct_equal );
   
-    printf("Reading an icon\n");
+    if (opt_debug) printf("Reading an icon\n");
     while( config_parse_next_event( event ) )
     {
         if ( event->type == YAML_MAPPING_END_EVENT )
         {
             // add the widget to the container
-            printf( "adding icon: %s %s\n", title->str, path->str );
+            if (opt_debug) printf( "adding icon: %s %s\n", title->str, path->str );
             button = gtk_button_new_with_label( title->str );
             if ( NULL != icon )
             {
-                printf("  with image: %s\n", icon->str );
+                if (opt_debug) printf("  with image: %s\n", icon->str );
                 image = gtk_image_new_from_file( icon->str );
                 gtk_button_set_image( GTK_BUTTON(button), image );
                 gtk_button_set_image_position( GTK_BUTTON(button),
@@ -597,13 +614,14 @@ gboolean config_read_icon( GtkWidget *hbox )
             g_signal_connect_data( button, "clicked",
                       G_CALLBACK(run_command), command, NULL, 0 );
             gtk_box_pack_start( GTK_BOX(hbox), button, FALSE, FALSE, 5 );
+            gtk_button_set_relief( GTK_BUTTON(button), GTK_RELIEF_NONE );
             gtk_widget_show( GTK_WIDGET(button) );
         
             return TRUE;
         }
         else if ( event->type == YAML_SCALAR_EVENT )
         {
-            printf( "config_read_icon scalar: %s\n", event->data.scalar.value );
+            if (opt_debug) printf( "config_read_icon scalar: %s\n", event->data.scalar.value );
             if ( 0 == strcmp( "title", event->data.scalar.value ) )
             {
                 title = g_string_new("");

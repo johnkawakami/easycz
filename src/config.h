@@ -7,7 +7,6 @@
  */
 #include <glib.h>
 #include <gtk/gtk.h>
-#include "globals.h"
 #include <yaml.h>
 
 typedef struct config_s {
