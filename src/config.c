@@ -3,6 +3,11 @@
 #include "globals.h"
 #define BUTTON_SPACING 10
 
+/* A recursive descent processor that uses the YAML parser to
+ * create a simple little language to make rows of buttons and
+ * labels, with buttons triggering execution of commands.
+ */
+
 gboolean config_read_document();
 gboolean config_read_document_mapping();
 gboolean config_read_table();
@@ -652,10 +657,12 @@ gboolean config_read_icon( GtkWidget *hbox )
 gboolean run_command( GtkButton *button, GHashTable *command )
 {
     GString *path;
+    GError **error;
+    
     path = g_hash_table_lookup( command, "path" );
     if (path != NULL)
     {
         printf("%s\n", path->str );
-        system( path->str );
+        g_spawn_command_line_async( path->str, error );
     }
 }

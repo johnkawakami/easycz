@@ -29,4 +29,9 @@ table:
           command  : firefox http://la.indymedia.org
         - title    : S.O.C.
           command  : firefox http://saveourcommunity.us
+  - title: Programming
+  - icons:
+        - title    : Geany
+          icon     : /usr/share/icons/hicolor/48x48/apps/geany.png
+          command  : geany
 title: "Welcome to Linux"
