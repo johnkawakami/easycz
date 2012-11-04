@@ -28,10 +28,46 @@ debug
 .TP
 \-f 
 forces full-screen mode
+.SH CONFIG FILES
+EasyCZ searches for the config file, conf.yaml,
+first in ~/.easycz/, then
+in the current directory.  If it finds it, it will chdir to that directory
+and relative references to images files or other files will be relative
+to the conf.yaml file's directory.
+.PP
+If a config file is specified on the command line, it'll be used, but
+the relative references will still be relative to the current directory,
+not the conf.yaml file's directory.  This is a bug.
+.PP
+The structure of the config file is YAML.  The syntax is as follows:
+ title: "string that is the window's title"
+ table:
+   - title: "a row in the table that acts as a title"
+   - icons:
+     - title:
+       icon:
+       command:
+     - title:
+       icon:
+       command:
+   - icons:
+     - title:
+       command:
+
+A table contains a sequence of either icons or titles.  "icons" is a
+collection of buttons, and each has a title, command, and an optional
+"icon".  An "icon" can be a JPEG, PNG, or any other format supported by GTK+.
+
+.SH FILES
+~/.easycz/ default location for config files and directories.
+conf.yaml default name for the config file in the current directory.
 .SH SEE ALSO
 clonezilla(1)
 .SH BUGS
 Malformed YAML files don't work at all, but error messages aren't
 helpful.
+.PP
+Icons and other resources are stored relative to the current directory
+if the config file name is specified.
 .SH AUTHOR
 John K <johnk@riceball.com>

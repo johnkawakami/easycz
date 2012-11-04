@@ -20,3 +20,5 @@ typedef struct command_s {
 // a singleton that holds the config object
 static config_t configobj;
 static config_t *config = &configobj;
+
+
