@@ -7,8 +7,8 @@
 
 int opt_debug = 0;
 int opt_fullscreen = 0;
-GString *config_file = NULL;
-GString *config_dir = NULL;
+GString *config_file[3];
+gchar *config_dir = NULL;
 
 
 gboolean delete_event( GtkWidget *widget,
@@ -27,31 +27,34 @@ void destroy( GtkWidget *widget,
 
 int main( int argc, char *argv[] )
 {
-    GtkWidget *window;
-    GtkWidget *button[6];
-    GtkWidget *box;
-    GtkWidget *image[6];
     int i;
     int opt;
     struct passwd *pw;
     const gchar *homedir = g_getenv("HOME");;
     FILE *file;
-
+    GString *active_config_file;
+    
     gtk_init( &argc, &argv );
 
-    /* look for config file in .easycz */
+    config_file[0] = NULL;
+    config_file[1] = NULL;
+    config_file[2] = NULL;
+
+    /* make up paths to search: ~/.easycz */
     if (NULL==homedir)
     {
-        pw = getpwuid(getuid());
-        config_dir = g_string_new( pw->pw_dir );
+        config_file[0] = g_string_new( g_get_home_dir() );
     }
     else
     {
-        config_dir = g_string_new( homedir );
+        config_file[0] = g_string_new( homedir );
     }
-    g_string_append( config_dir, "/.easycz/" );
-    config_file = g_string_new( config_dir->str );
-    g_string_append( config_file, "conf.yaml" );
+    g_string_append( config_file[0], "/.easycz/conf.yaml" );
+
+    /* search in current dir for conf.yaml */
+    config_file[1] = g_string_new( g_get_current_dir() );
+    g_string_append( config_file[1], "/conf.yaml" );
+
     
     while( ( opt = getopt( argc, argv, "c:df" ) ) != -1 )
     {
@@ -61,8 +64,9 @@ int main( int argc, char *argv[] )
                 if (file = fopen(optarg,"r"))
                 {
                     fclose(file);
-                    config_file = g_string_new( optarg );
-                    g_string_assign( config_dir, g_getenv("PWD") );
+                    config_file[2] = g_string_new( g_get_current_dir() );
+                    g_string_append( config_file[2], "/" );
+                    g_string_append( config_file[2], optarg );
                 }
                 else
                 {
@@ -81,30 +85,29 @@ int main( int argc, char *argv[] )
                 break;
         }
     }
-    /* now check the file location.  if it fails, look for conf.yaml
-     * in the current directory. */
-    if (opt_debug) printf("finding config in %s\n", config_file->str );
-    if (file = fopen( config_file->str, "r" ))
+    if (opt_debug) printf("finding config\n" );
+    active_config_file = NULL;
+    for( i=2; i>=0; i--)
     {
-        fclose(file);
-    }
-    else
-    {
-        if (opt_debug) printf("could not find the default ~/.easycz/conf.yaml\n");
-        if (file = fopen( "conf.yaml", "r" ))
+        if ( config_file[i] && ( 0 == access( config_file[i]->str, R_OK) ) )
         {
-            fclose(file);
-            config_file = g_string_new( "conf.yaml" );
-            g_string_assign( config_dir, g_getenv("PWD") );
-            if (opt_debug) printf("found conf.yaml in current dir \n");
+            active_config_file = config_file[i];
         }
     }
-    if ( -1 == g_chdir( config_dir->str ) )
+    if ( NULL == active_config_file )
     {
-            fprintf( stderr, "cannot chdir to %s\n", config_dir->str );
+        fprintf( stderr, "Config file not found.\n" );
+        exit(1);
+    }
+
+    config_dir = g_path_get_dirname( active_config_file->str );
+    
+    if ( -1 == g_chdir( config_dir ) )
+    {
+            fprintf( stderr, "cannot chdir to %s\n", config_dir );
             exit(0);
     }
-    if (opt_debug) printf( "cd to %s\n", config_dir->str );
+    if (opt_debug) printf( "cd to %s\n", config_dir );
     if (opt_debug)
     {
         printf("debug\n");
@@ -115,7 +118,7 @@ int main( int argc, char *argv[] )
     }
     
     /* parse the yaml file to build the gui */
-    if (!config_parse( config_file->str ))
+    if (!config_parse( active_config_file->str ))
     {
         return 0;
     }

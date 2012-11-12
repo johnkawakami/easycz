@@ -29,15 +29,19 @@ debug
 \-f 
 forces full-screen mode
 .SH CONFIG FILES
-EasyCZ searches for the config file, conf.yaml,
-first in ~/.easycz/, then
-in the current directory.  If it finds it, it will chdir to that directory
+EasyCZ searches for the config file in three locations.
+First, if the user specifies a file, it tries that.
+Second, it looks for a file named conf.yaml in the current
+directory.  Third, it looks in ~/.easycz/.
+If it finds it, it will chdir to that directory
 and relative references to images files or other files will be relative
 to the conf.yaml file's directory.
 .PP
-If a config file is specified on the command line, it'll be used, but
-the relative references will still be relative to the current directory,
-not the conf.yaml file's directory.  This is a bug.
+You can develop your swithcboard by working within a
+directory.  When it's done, you can invoke that switchboard by using
+the -c option and specifying the conf.yaml file within that directory.
+For simplicity, you may want to create a hierarchy of directories
+within ~/.easycz.
 .PP
 The structure of the config file is YAML.  The syntax is as follows:
  title: "string that is the window's title"

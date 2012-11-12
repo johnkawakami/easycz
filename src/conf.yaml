@@ -34,4 +34,4 @@ table:
         - title    : Geany
           icon     : /usr/share/icons/hicolor/48x48/apps/geany.png
           command  : geany
-title: "Welcome to Linux"
+title: "Welcome to EazyCZ... config file in src dir."
